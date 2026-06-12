@@ -161,9 +161,9 @@ Consequently, writing $\nu$ for the law of $v=\sqrt{U}$ and
 $\mu=\nu-p\,\delta_1$ for its non-atomic part,
 \begin{equation}\label{eq:decomp}
 \Psi_d(w)\;=\;\E\,C_d\bigl(\sqrt{U}\,w\bigr)
-\;=\;p\,C_d(w)\;+\;\int_{(0,1)}C_d(vw)\,\dd\mu(v),
+\;=\;p\,C_d(w)\;+\;\int_{(0,1]}C_d(vw)\,\dd\mu(v),
 \end{equation}
-with $\mu\ge 0$ and $\mu\bigl((0,1)\bigr)=1-p$.
+with $\mu\ge 0$ and $\mu\bigl((0,1]\bigr)=1-p$.
 The identity \eqref{eq:decomp} is exact, coefficient by coefficient,
 at every finite $d$; no limit is involved. Nor is the intensity
 $\lambda$ an ansatz: Section~\ref{sec:moments} opens by deriving it
@@ -198,8 +198,12 @@ $\forall$ z $\in$ ((Psi d).map (algebraMap $\R$ $\C$)).roots, z.im = 0}
 compiles with zero \texttt{sorry}s and depends only on the three
 standard axioms of the Lean/mathlib universe
 (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}).
-Section~\ref{sec:lean} describes the formalization; the source is
-distributed with this paper.
+Section~\ref{sec:lean} describes the formalization; the complete
+source, with build instructions and the verification scripts, is
+available at
+\begin{center}
+\url{https://github.com/michael-haufschild-gib/theorem-m}
+\end{center}
 
 \subsection*{Motivation}
 The identity \eqref{eq:decomp} exhibits $\Psi_d$ as an exact average
@@ -357,7 +361,7 @@ $k$. Adding the two evaluations gives the claim.
 $\E\,[U^k]=M_k$ for every integer $k\ge 0$, and
 $\Prob(U=1)=p=\sqrt{2/\e}$. Consequently, with $\nu$ the law of
 $v=\sqrt{U}$ and $\mu:=\nu-p\,\delta_1$,\, $\mu$ is a positive measure
-supported in $(0,1)$ with total mass $1-p$, and for every $d\ge 1$ the
+concentrated on $(0,1]$ with total mass $1-p$, and for every $d\ge 1$ the
 exact decomposition \eqref{eq:decomp} holds.
 \end{theorem}
 
@@ -395,8 +399,10 @@ give $\gamma k-S_1(k)=-k\log k+k-\tfrac12+O(1/k)$; multiplying,
 $M_k=\sqrt2\,\e^{-1/2}+O(1/k)\to\sqrt{2/\e}$.
 
 \emph{Decomposition.} $v=\sqrt U\in(0,1]$ has an atom of mass exactly
-$p$ at $1$ and no other mass on $\{1\}$, so $\mu=\nu-p\delta_1\ge 0$
-is supported in $(0,1)$ with mass $1-p$. Finally, for any $d\ge 1$,
+$p$ at $1$, so $\mu=\nu-p\delta_1\ge 0$ is concentrated on $(0,1]$
+with mass $1-p$ (in fact $\mu(\{1\})=0$, since the atom of $\nu$ at
+$1$ has mass exactly $p$; nothing below uses this, and we do not
+record it formally). Finally, for any $d\ge 1$,
 expanding the finite sum \eqref{eq:CdPsid} and using
 $\E[(\sqrt U)^{2k}]=\E[U^k]=M_k$,
 \[
@@ -410,7 +416,7 @@ which is \eqref{eq:decomp} after splitting $\nu=p\,\delta_1+\mu$.
 
 \begin{remark}
 Only three consequences of Theorem~\ref{thm:moments} are used below:
-$\mu\ge0$, the mass $\mu((0,1))=1-p$, and the support
+$\mu\ge0$, the mass $\mu((0,1])=1-p$, and the support
 $\operatorname{supp}\mu\subseteq[0,1]$. The specific shape of
 $\lambda$ matters only through the closed form \eqref{eq:Mk} of the
 moments. Note also $p^2=2/\e>1/4$, i.e.
@@ -551,7 +557,7 @@ work with no room to spare; see Remark~\ref{rem:sharp}.
 \begin{proof}[Proof of Theorem~\ref{thm:main}]
 Fix $d\ge1$ and abbreviate $p=\sqrt{2/\e}$. Recall from
 \eqref{eq:decomp} that
-$\Psi_d(x)=p\,C_d(x)+\int_{(0,1)}C_d(vx)\,\dd\mu(v)$ with $\mu\ge0$ of
+$\Psi_d(x)=p\,C_d(x)+\int_{(0,1]}C_d(vx)\,\dd\mu(v)$ with $\mu\ge0$ of
 total mass $1-p$.
 
 \emph{Step 1: $\Psi_d$ copies the critical signs of $C_d$.} Let
@@ -559,7 +565,7 @@ $c\in\{c_0,\dots,c_{d-1}\}$ be a nonnegative critical point of $C_d$.
 By the segment domination \eqref{eq:domination},
 \[
 \Bigl|\Psi_d(c)-p\,C_d(c)\Bigr|
-\;\le\;\int_{(0,1)}\bigl|C_d(vc)\bigr|\,\dd\mu(v)
+\;\le\;\int_{(0,1]}\bigl|C_d(vc)\bigr|\,\dd\mu(v)
 \;\le\;(1-p)\,\bigl|C_d(c)\bigr|
 \;<\;p\,\bigl|C_d(c)\bigr| ,
 \]
@@ -604,8 +610,10 @@ no step assumed $d\ge2$.
 Theorem~\ref{thm:main} (in the realness form stated in
 Section~\ref{sec:intro}) has been formalized in Lean~4 (v4.30.0)
 against mathlib (pinned at commit
-\texttt{c5ea0035}\,/\,tag v4.30.0). The development comprises
-thirteen files, about $5{,}300$ lines:
+\texttt{c5ea0035}\,/\,tag v4.30.0).\footnote{Source, build
+instructions and verification scripts:
+\url{https://github.com/michael-haufschild-gib/theorem-m}.} The
+development comprises thirteen files, about $5{,}300$ lines:
 
 \begin{center}
 \footnotesize
@@ -632,8 +640,8 @@ measure-level assertion of Section~\ref{sec:moments}: positivity and
 finiteness of $\lambda$ (a \texttt{withDensity} measure), the integer
 Binet identity as a genuine Lebesgue-integral statement, and the
 existence of the residual measure $\mu$ of \eqref{eq:decomp} ---
-obtained as a pushforward --- with $\mu\ge0$, mass $1-p$ and even
-moments $M_k-p$. What it does not do is represent $U$ as the
+obtained as a pushforward --- with $\mu\ge0$, concentration on
+$(0,1]$, mass $1-p$ and even moments $M_k-p$. What it does not do is represent $U$ as the
 exponential functional $\e^{-\sum_j T_j}$ of a Poisson point process.
 This is a deliberate boundary, not a gap: the proof of
 Theorem~\ref{thm:main} consumes the law of $U$ only through the
@@ -658,12 +666,14 @@ function theory.
 
 The final check reports, for the headline theorem and its
 evaluation-form companion alike,
-\begin{center}
-\texttt{'TheoremM.theorem\_M' depends on axioms:
-[propext, Classical.choice, Quot.sound]}\\
-\texttt{'TheoremM.theorem\_M\_aeval' depends on axioms:
-[propext, Classical.choice, Quot.sound]}
-\end{center}
+\begin{quote}
+\begin{verbatim}
+'TheoremM.theorem_M' depends on axioms:
+    [propext, Classical.choice, Quot.sound]
+'TheoremM.theorem_M_aeval' depends on axioms:
+    [propext, Classical.choice, Quot.sound]
+\end{verbatim}
+\end{quote}
 with zero \texttt{sorry}s in the tree (8489 compiled jobs). These
 three axioms are the standard foundation of all of mathlib;
 in particular no numerical computation, floating point or interval
@@ -678,8 +688,10 @@ each other's proofs), with the Lean kernel as the final referee. In
 addition, the development has been re-verified independently of
 Lean's own kernel: the proof terms were exported with the upstream
 \texttt{lean4export} tool (v4.30.0) and re-checked by Nanoda
-(\texttt{nanoda\_lib}, commit \texttt{f58f2f6d}), an external
-implementation of the Lean~4 kernel, which reports
+(\texttt{nanoda\_lib}, commit \texttt{f58f2f6d}), an independent
+implementation of the Lean~4 kernel in
+Rust,\footnote{\url{https://github.com/leanprover/lean4export} and
+\url{https://github.com/ammkrn/nanoda_lib}.} which reports
 \emph{``Checked 48241 declarations with no errors''} for an export
 containing \texttt{theorem\_M} and \texttt{theorem\_M\_aeval}, with
 the permitted axioms restricted to exactly the three listed above.
