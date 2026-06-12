@@ -165,7 +165,10 @@ $\mu=\nu-p\,\delta_1$ for its non-atomic part,
 \end{equation}
 with $\mu\ge 0$ and $\mu\bigl((0,1)\bigr)=1-p$.
 The identity \eqref{eq:decomp} is exact, coefficient by coefficient,
-at every finite $d$; no limit is involved.
+at every finite $d$; no limit is involved. Nor is the intensity
+$\lambda$ an ansatz: Section~\ref{sec:moments} opens by deriving it
+from the moment ratios of \eqref{eq:Mk}, through the classical
+integral representations of the digamma function.
 
 \emph{Second ingredient: a one-line energy bound at the critical
 points.} Writing $E=C_d^2+C_d'^2$, the Kummer differential equation
@@ -227,6 +230,47 @@ verification. Section~\ref{sec:remarks} closes with remarks on
 sharpness and an open question.
 
 \section{The compound-Poisson law behind the moments}\label{sec:moments}
+
+\subsection*{Reverse-engineering the intensity}
+Before verifying anything, we explain where $\lambda$ comes from:
+it is forced by the moments, and the harmonic numbers in
+\eqref{eq:Mk} dictate its shape through the digamma function. The
+ratios of consecutive moments are elementary --- by the telescoping
+$S_1(k)-S_1(k-1)=H_{k-1}$ of \eqref{eq:S1},
+\[
+\frac{M_k}{M_{k-1}}
+=\frac{2k(2k-1)}{4k}\,\e^{\gamma-H_{k-1}}
+=\Bigl(k-\tfrac12\Bigr)\,\e^{\gamma-H_{k-1}} .
+\]
+Now look for a random variable $U=\e^{-Y}\in(0,1]$ with these moments,
+taking $Y\ge0$ infinitely divisible --- the simplest class with fully
+explicit Laplace transforms: $\log\E[\e^{-kY}]
+=\int_0^\infty(\e^{-kt}-1)\,\lambda(\dd t)$ for an intensity measure
+$\lambda$ to be found. Consecutive log-moment differences are then
+$\int(\e^{-kt}-\e^{-(k-1)t})\,\lambda(\dd t)$, and the ansatz
+$\lambda(\dd t)=\eta(t)\,\frac{\e^{-t}}{1-\e^{-t}}\,\dd t$ makes the
+difference collapse to a single Laplace transform, since
+$(\e^{-kt}-\e^{-(k-1)t})\,\frac{\e^{-t}}{1-\e^{-t}}=-\e^{-kt}$.
+Matching the moment ratios above therefore amounts to solving
+\[
+\int_0^\infty \e^{-kt}\,\eta(t)\,\dd t
+\;=\;\psi(k)-\log\Bigl(k-\tfrac12\Bigr),
+\qquad k=1,2,\dots,
+\]
+where the harmonic numbers have become the digamma function through
+$\psi(k)=H_{k-1}-\gamma$. This transform pair is classical: Gauss's
+integral represents $\psi$, Frullani's integral represents the
+logarithm (the half-integer shift $k-\tfrac12$ producing the factor
+$\e^{t/2}$), and subtracting the two integrands term by term reads off
+\[
+\eta(t)\;=\;\frac{\e^{t/2}}{t}-\frac{1}{1-\e^{-t}} .
+\]
+Everything to this point is bookkeeping. The one substantive fact ---
+the fact that makes the random variable exist and the whole method
+work --- is that this particular difference of classical integrands is
+\emph{positive} and integrable against
+$\frac{\e^{-t}}{1-\e^{-t}}\,\dd t$. That is Lemma~\ref{lem:eta}, and
+the rest of the section re-runs the derivation forwards, rigorously.
 
 \begin{lemma}\label{lem:eta}
 For $t>0$ let
@@ -583,15 +627,22 @@ thirteen files, about $5{,}300$ lines:
 
 Two design points deserve mention.
 
-\emph{No randomness in the formal text.} The formal proof does not
-construct a Poisson point process. It constructs the finite measure
-$\lambda$ directly, proves the integer Binet identity as a genuine
-Lebesgue-integral statement, and obtains the residual measure $\mu$ of
-\eqref{eq:decomp} as a pushforward, discharging a finite list of
-moment conditions ($\mu\ge0$, mass $1-p$, even moments $M_k-p$ for
-$k\le d$) --- which is all that Step~1 consumes. The probabilistic
-language of Section~\ref{sec:moments} is, for the formal text, a
-commentary.
+\emph{Measures, not samples.} The formal development verifies every
+measure-level assertion of Section~\ref{sec:moments}: positivity and
+finiteness of $\lambda$ (a \texttt{withDensity} measure), the integer
+Binet identity as a genuine Lebesgue-integral statement, and the
+existence of the residual measure $\mu$ of \eqref{eq:decomp} ---
+obtained as a pushforward --- with $\mu\ge0$, mass $1-p$ and even
+moments $M_k-p$. What it does not do is represent $U$ as the
+exponential functional $\e^{-\sum_j T_j}$ of a Poisson point process.
+This is a deliberate boundary, not a gap: the proof of
+Theorem~\ref{thm:main} consumes the law of $U$ only through the
+listed measure data, so the point-process representation --- the right
+way to \emph{understand} the law, and the way it was found
+(Section~\ref{sec:moments}) --- contributes no additional logical
+content to the theorem. Formalizing it would enlarge the verified
+statement about the measure, not the verified theorem about
+$\Psi_d$.
 
 \emph{Hermite theory from scratch.} Rather than formalize the
 classical literature on Laguerre zeros, the development proves
