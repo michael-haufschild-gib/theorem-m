@@ -5,7 +5,13 @@ mathlib, with **zero `sorry`s** and only the three standard axioms:
 
 ```
 'TheoremM.theorem_M' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheoremM.theorem_M_aeval' depends on axioms: [propext, Classical.choice, Quot.sound]
 ```
+
+Independently re-verified with an external implementation of the
+Lean 4 kernel ([nanoda_lib](https://github.com/ammkrn/nanoda_lib) on a
+[lean4export](https://github.com/leanprover/lean4export) export):
+`Checked 48241 declarations with no errors`.
 
 ## Statement
 
@@ -31,13 +37,18 @@ theorem theorem_M (d : ℕ) (hd : 1 ≤ d) :
 (`formal/TheoremM/CriticalData.lean`, with the `aeval` companion
 `theorem_M_aeval`.)
 
-## Scope — read this first
+## Scope
 
-**Theorem M does not prove the Riemann Hypothesis.** It establishes
-hyperbolicity of the critical-model polynomials `Ψ_d` at every finite
-`d`. Its relevance to RH runs through a separate, *unproven* transport
-program (the W2′/ξ-limit interface); see the manuscript §5 for the open
-items. No claim beyond the formal statement above is made here.
+The claim of this repository is exactly the formal statement above —
+real-rootedness of the explicit polynomial family `Ψ_d` for every
+finite `d ≥ 1` — and nothing beyond it. `Ψ_d` is a moment deformation
+of the Laguerre polynomial `L_d^(−1/2)` at its critical scaling; the
+moments `M_k` are those of an explicit compound-Poisson random
+variable with atom `√(2/e)` at 1, so the theorem says that this exact
+averaging preserves hyperbolicity at every degree. Motivation
+(a Pólya–Schur-type preserver question), the full mathematical proof,
+and the derivation of the underlying measure are in the preprint
+(`docs/preprint/`).
 
 ## Verify it yourself
 
@@ -96,10 +107,10 @@ analysis on the critical path:
 
 ## Documents
 
-- `docs/theorem_M_draft.md` — the human-readable manuscript (statement,
-  proofs, constants, referee rounds, formalization status).
-- `formal/FORMALIZATION_PLAN.md` — the phase-by-phase formalization
-  campaign log.
+- `docs/preprint/main.tex` / `main.pdf` — **the paper**: statement,
+  the compound-Poisson moment construction, the elementary
+  sign-alternation proof, and the formalization report
+  (11 pp., arXiv-ready).
 
 ## Authorship
 

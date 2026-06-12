@@ -46,3 +46,7 @@ screenshots/
 # LaTeX build intermediates (compiled PDF is committed deliberately)
 docs/preprint/*.aux
 docs/preprint/*.out
+
+# Working documents stay in the private workspace
+docs/theorem_M_draft.md
+formal/FORMALIZATION_PLAN.md
