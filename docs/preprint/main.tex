@@ -76,8 +76,14 @@ differential equation, an energy monotonicity along the real axis, and
 a sign-alternation count at the critical points of $C_d$ --- and it has
 been formally verified: the theorem is proved in Lean~4 against the
 mathlib library with zero \texttt{sorry}s, depending only on the three
-standard axioms. To our knowledge $\Psi_d$ is, in this generality, a
-new explicit hyperbolic deformation of the Laguerre--Hermite family.
+standard axioms. The sequence $(M_k)$ is provably \emph{not} a
+P\'olya--Schur multiplier sequence --- no nondegenerate moment
+sequence is, since moment sequences are log-convex while multiplier
+sequences must be log-concave --- so the hyperbolicity proved here is
+a property of the pair (sequence, family) and is not subsumed by any
+coefficientwise preserver theorem. To our knowledge $\Psi_d$ is, in
+this generality, a new explicit hyperbolic deformation of the
+Laguerre--Hermite family.
 \end{abstract}
 
 \maketitle
@@ -129,10 +135,13 @@ sequence $(M_k)$ is strictly decreasing
 (the ratio test below reduces this to $\log(1+x)<x$), from $M_0=1$
 through $M_1=\e^{\gamma}/2=0.89053\ldots$ toward its limit
 $p:=\sqrt{2/\e}=0.85776\ldots$, so every coefficient of $C_d$ is
-damped by a different factor. Nothing about \eqref{eq:Mk} makes
-$(M_k)$ visibly a multiplier sequence in the sense of
-P\'olya--Schur, and we do not know a preserver-theoretic proof of
-Theorem~\ref{thm:main}.
+damped by a different factor. Moreover, $(M_k)$ is provably
+\emph{not} a multiplier sequence in the sense of P\'olya--Schur:
+already the image of $(w^2-1)^2$ under the coefficientwise action has
+four nonreal zeros (Proposition~\ref{prop:notms}), so no
+coefficientwise preserver theorem can yield
+Theorem~\ref{thm:main} --- the hyperbolicity below is a property of
+the pair (sequence, family), not of the sequence alone.
 
 \begin{theorem}[Main theorem]\label{thm:main}
 For every integer $d\ge 1$, all $2d$ zeros of $\Psi_d$ are real and
@@ -213,7 +222,12 @@ a statement about the sequence $(M_k)$, it is a concrete instance of a
 natural question in the tradition of P\'olya--Schur preserver theory:
 \emph{which moment sequences of random variables in $[0,1]$ act
 coefficientwise on the critical Laguerre family without destroying
-hyperbolicity?} The compound-Poisson mechanism of
+hyperbolicity?} The question is intrinsically tied to the family: no
+nondegenerate moment sequence preserves hyperbolicity of \emph{all}
+even hyperbolic polynomials (Remark~\ref{rem:logconvex} --- moment
+sequences are log-convex, multiplier sequences must be log-concave),
+so family-specific structure is the only possible source of such
+preservation. The compound-Poisson mechanism of
 Section~\ref{sec:moments} --- an atom of mass $p>\tfrac12$ at the
 identity scale plus a positive residual --- combined with the energy
 bound of Section~\ref{sec:laguerre} yields a sufficient criterion of
@@ -231,7 +245,9 @@ Section~\ref{sec:laguerre} collects the classical facts about $C_d$
 and proves the energy lemma. Section~\ref{sec:proof} proves
 Theorem~\ref{thm:main}. Section~\ref{sec:lean} documents the formal
 verification. Section~\ref{sec:remarks} closes with remarks on
-sharpness and an open question.
+sharpness and a proof that $(M_k)$ is \emph{not} a P\'olya--Schur
+multiplier sequence, so that no coefficientwise preserver theorem
+subsumes Theorem~\ref{thm:main}.
 
 \section{The compound-Poisson law behind the moments}\label{sec:moments}
 
@@ -717,15 +733,49 @@ development's counting layer but was not exported into the headline
 statement.
 \end{remark}
 
-\begin{remark}[a question]
 The moment sequence \eqref{eq:Mk} acts coefficientwise on $C_d$ and
-preserves hyperbolicity for every $d$. Is $(M_k)_{k\ge0}$ a
-P\'olya--Schur multiplier sequence (i.e.\ does it preserve
-hyperbolicity of \emph{all} hyperbolic even polynomials)? The
-compound-Poisson representation proves much less --- it is tied to the
-energy structure of $C_d$ --- and we do not know the answer; a
-negative answer would make Theorem~\ref{thm:main} more interesting,
-not less.
+preserves hyperbolicity for every $d$. It is natural to ask whether
+$(M_k)_{k\ge0}$ is a P\'olya--Schur multiplier sequence --- whether it
+preserves hyperbolicity of \emph{all} hyperbolic even polynomials,
+not just this family. The answer is no, by a one-line certificate.
+
+\begin{proposition}[$(M_k)$ is not a multiplier sequence]\label{prop:notms}
+The coefficientwise action
+$\sum_k a_k w^{2k}\mapsto\sum_k a_k M_k w^{2k}$ does not preserve
+hyperbolicity: the image of the hyperbolic polynomial $(w^2-1)^2$ is
+$M_2 w^4 - 2M_1 w^2 + 1$, all four of whose zeros are nonreal.
+\end{proposition}
+
+\begin{proof}
+The zeros satisfy $w^2=\bigl(M_1\pm\sqrt{M_1^2-M_2}\,\bigr)/M_2$, and
+by \eqref{eq:Mk}, $M_1=\e^{\gamma}/2$ and $M_2=\tfrac34\e^{2\gamma-1}$,
+so
+\[
+M_1^2-M_0M_2
+\;=\;\frac{\e^{2\gamma}}{4}\Bigl(1-\frac{3}{\e}\Bigr)\;<\;0
+\qquad\text{because }\e<3 .
+\]
+Hence $w^2$ is nonreal, and a nonreal number has no real square root.
+\end{proof}
+
+\begin{remark}[moment sequences vs.\ multiplier sequences]\label{rem:logconvex}
+The failure is structural, not an accident of \eqref{eq:Mk}. Applying
+the coefficientwise action of any sequence $(\gamma_k)$ with
+$\gamma_k>0$ to the hyperbolic polynomials $w^{2k-2}(w^2-1)^2$ shows
+that an even multiplier sequence must satisfy the Tur\'an inequalities
+$\gamma_k^2\ge\gamma_{k-1}\gamma_{k+1}$, i.e.\ must be
+\emph{log-concave}. But every moment sequence
+$\gamma_k=\E[V^k]$ of a nonnegative random variable is
+\emph{log-convex} by Cauchy--Schwarz, strictly at $k=1$ unless $V$ is
+a.s.\ constant. So no nondegenerate moment sequence is a multiplier
+sequence --- the two classes meet only in the geometric sequences
+$\gamma_k=c^k$, whose action is the rescaling $w\mapsto\sqrt{c}\,w$.
+In particular, no coefficientwise preserver theorem could prove
+Theorem~\ref{thm:main}: what the theorem certifies is a property of
+the \emph{pair} (sequence, family), powered by the energy structure of
+$C_d$ (Lemma~\ref{lem:energy}) and the atom bound $p>\tfrac12$ --- and
+by Proposition~\ref{prop:notms} that pairing is essential. We regard
+this as making Theorem~\ref{thm:main} more interesting, not less.
 \end{remark}
 
 \subsection*{Acknowledgments}

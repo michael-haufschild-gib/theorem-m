@@ -13,11 +13,15 @@ compound-Poisson random variable, and the theorem says that averaging
 the Laguerre polynomial against that randomness never pushes a zero
 off the real line — at any degree.
 
-The result is modest in scope but, as far as we know, not covered by
-the classical hyperbolicity-preservation theorems, and the proof is
-elementary: real-variable arguments only, no complex analysis. The
-whole argument is written up in a short paper and, separately,
-verified end-to-end in Lean 4.
+The result is modest in scope but provably not an instance of the
+classical hyperbolicity-preservation theorems: the sequence `M_k`
+fails the Pólya–Schur multiplier criterion already on
+`(w² − 1)²` (Section 6 of the paper — in fact no nondegenerate
+moment sequence preserves hyperbolicity universally, by
+Cauchy–Schwarz), so the preservation proved here is specific to this
+family. The proof is elementary: real-variable arguments only, no
+complex analysis. The whole argument is written up in a short paper
+and, separately, verified end-to-end in Lean 4.
 
 ## If you came here from the paper
 

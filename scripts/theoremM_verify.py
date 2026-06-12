@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Theorem M — referee-runnable verification suite (campaign phase P4).
+"""Theorem M — referee-runnable verification suite.
 
-Re-derives every numbered constant of docs/rh/theorem_M_draft.md in
-high-precision arithmetic and verifies the theorem's CONCLUSION
-end-to-end, independently of the proof. Each block prints PASS/FAIL.
+Re-derives every numbered constant of the paper
+(docs/preprint/main.tex) in high-precision arithmetic and verifies
+the theorem's CONCLUSION end-to-end, independently of the proof.
+Each block prints PASS/FAIL.
 
 Usage:  python3 theoremM_verify.py [--dmax 300]
 
 Sections:
-  V1  §1.4a construction: lambda-mass, atom, Binet identity (B),
+  V1  construction: lambda-mass, atom, Binet identity (B),
       adjacent-ratio identity (R)   [cancellation-safe eta]
   V2  END-TO-END: hyperbolicity of Psi_d for d = 1..DMAX
   V3  W1/W2 exact identities (numerical residuals at random points)
@@ -16,6 +17,9 @@ Sections:
       beyond-edge counting error (E1b) empirical check
   V5  Constant chain: E5/E8/K_cap arithmetic, Corollary T floor,
       cap-floor threshold K = 3.0500, X-wall ratio
+  V6  (M_k) is NOT a Polya-Schur multiplier sequence
+      (paper Sec. 6 proposition: Turan ratio M1^2/M2 = e/3 < 1; the
+      image of (w^2-1)^2 has four nonreal zeros)
 Requires: mpmath, numpy, scipy.
 """
 import argparse
@@ -260,16 +264,42 @@ def v5():
           f"{float((1-p)*sqrt(2)/p):.4f}")
 
 
+# ----------------------------------------------------------------------
+# V6 — (M_k) is not a multiplier sequence (paper Sec. 6 proposition)
+# ----------------------------------------------------------------------
+def v6():
+    print("V6  multiplier-sequence falsification (dps = 50):")
+    mp.dps = 50
+    M1 = exp(euler) / 2
+    M2 = mpf(3) / 4 * exp(2 * euler - 1)
+    # Turan ratio is exactly e/3 < 1, i.e. M1^2 < M0*M2 (log-convexity,
+    # Cauchy-Schwarz side) — a multiplier sequence needs >= 1.
+    ratio = M1 ** 2 / M2
+    check("Turan ratio M1^2/(M0*M2) = e/3 exactly",
+          abs(ratio - mpe / 3) < mpf(10) ** (-45), f"ratio {float(ratio):.6f}")
+    check("Turan inequality FAILS: M1^2 < M0*M2 (since e < 3)",
+          M1 ** 2 < M2, f"M1^2-M2 {float(M1**2 - M2):.6f}")
+    # The image of the hyperbolic (w^2-1)^2 is M2 w^4 - 2 M1 w^2 + 1;
+    # its zeros satisfy w^2 = (M1 +- sqrt(M1^2-M2))/M2, nonreal.
+    w2 = (M1 + sqrt(mpc(M1 ** 2 - M2))) / M2
+    roots = [sqrt(w2), -sqrt(w2), sqrt(w2.conjugate()), -sqrt(w2.conjugate())]
+    min_im = min(abs(r.imag) for r in roots)
+    resid = max(abs(M2 * r ** 4 - 2 * M1 * r ** 2 + 1) for r in roots)
+    check("all 4 zeros of M2*w^4 - 2*M1*w^2 + 1 are nonreal",
+          min_im > mpf("0.1"), f"min |Im| {float(min_im):.4f}, residual {float(resid):.1e}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dmax", type=int, default=300)
     args = ap.parse_args()
-    print("Theorem M verification suite (docs/rh/theorem_M_draft.md)\n")
+    print("Theorem M verification suite (docs/preprint/main.tex)\n")
     v1()
     v2(args.dmax)
     v3()
     v4()
     v5()
+    v6()
     print(f"\n{'ALL CHECKS PASS' if not failures else 'FAILURES: ' + ', '.join(failures)}")
     sys.exit(0 if not failures else 1)
 
