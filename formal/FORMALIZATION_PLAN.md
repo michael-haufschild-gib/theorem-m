@@ -117,7 +117,7 @@ GAPS (must build or route around):
 ## Faithfulness invariant
 
 Any change to `Psi`/`M`/`S1` definitions must be cross-checked against
-`scripts/research/hilbertPolya/theoremM_verify.py` (same coefficients
+`scripts/theoremM_verify.py` (same coefficients
 to 60+ digits) — the Lean definitions and the numerical suite must
 describe the SAME object, or the formalization proves the wrong
 theorem. Check: evaluate both at d = 7 and compare coefficient lists.

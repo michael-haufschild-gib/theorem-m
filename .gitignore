@@ -42,3 +42,7 @@ screenshots/
 
 # Serena (local agent tooling)
 .serena/
+
+# LaTeX build intermediates (compiled PDF is committed deliberately)
+docs/preprint/*.aux
+docs/preprint/*.out

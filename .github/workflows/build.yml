@@ -27,3 +27,8 @@ jobs:
 
       - name: Axiom + sorry audit
         run: bash scripts/check_axioms.sh
+
+      - name: Nanoda external checker
+        run: bash scripts/check_nanoda.sh
+        env:
+          NANODA_NUM_THREADS: 2

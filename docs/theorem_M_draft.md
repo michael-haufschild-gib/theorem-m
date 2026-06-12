@@ -705,9 +705,10 @@ not by itself a weighted kernel-norm theorem.
 - v*(d): 1 − v* = 1.56/d (d = 16…128) — endpoint control, archived.
 - Lemma A + M₁ ≥ 1 (Sonin–Pólya + pod confirmation d = 8…160): the y = 0
   slice of wall dominance; W1 at y = 0 reduces to exactly this.
-- All numerical artifacts: logs/pod_archive_20260612/, artifacts/runpod/.
+- Numerical artifacts are private-lab archives, not public `theorem-m/`
+  contents: `logs/pod_archive_20260612/`, `artifacts/runpod/`.
 - **Referee-runnable verification suite** (round 308, campaign P4):
-  `scripts/research/hilbertPolya/theoremM_verify.py` — re-derives every
+  `scripts/theoremM_verify.py` — re-derives every
   numbered constant (E1 inputs, E5/E8/K_cap chain, Corollary T floor and
   its K = 3.0500 threshold, X-wall and wall budgets), checks the §1.4a
   construction (λ-mass, atom, Binet (B), ratio (R) — cancellation-safe η),

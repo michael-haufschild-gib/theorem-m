@@ -49,6 +49,7 @@ cd formal
 lake exe cache get      # fetch precompiled mathlib (~minutes, no compile)
 lake build              # builds and kernel-checks the full tree
 ../scripts/check_axioms.sh   # prints the axiom report; fails on any deviation
+../scripts/check_nanoda.sh   # exports theorem_M/theorem_M_aeval and checks them with nanoda_lib
 ```
 
 The numerical pre-certification suite (independent of Lean; mpmath/scipy):
