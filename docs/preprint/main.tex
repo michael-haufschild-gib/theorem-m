@@ -198,19 +198,25 @@ standard axioms of the Lean/mathlib universe
 Section~\ref{sec:lean} describes the formalization; the source is
 distributed with this paper.
 
-\subsection*{Motivation and scope}
-The family $\Psi_d$ arises in a research program around the Riemann
-$\xi$-function, as the fixed (degree-independent) moment deformation
-of the critical Laguerre profile; the moments \eqref{eq:Mk} are the
-``hard head'' coefficients of that program's critical model lift, and
-Theorem~\ref{thm:main} establishes the hyperbolicity of the model
-anchor at every finite degree. We emphasize the scope plainly:
-\textbf{Theorem~\ref{thm:main} proves nothing about the Riemann
-hypothesis}. Whatever interest the theorem has should rest on its
-self-standing content: an explicit, nontrivially deformed Laguerre
-family that remains hyperbolic at every degree, with an elementary,
-machine-checked proof and an exact probabilistic mechanism
-\eqref{eq:decomp} behind it.
+\subsection*{Motivation}
+The identity \eqref{eq:decomp} exhibits $\Psi_d$ as an exact average
+of rescaled copies of $C_d$, and Theorem~\ref{thm:main} says that this
+particular averaging preserves hyperbolicity at every degree. Read as
+a statement about the sequence $(M_k)$, it is a concrete instance of a
+natural question in the tradition of P\'olya--Schur preserver theory:
+\emph{which moment sequences of random variables in $[0,1]$ act
+coefficientwise on the critical Laguerre family without destroying
+hyperbolicity?} The compound-Poisson mechanism of
+Section~\ref{sec:moments} --- an atom of mass $p>\tfrac12$ at the
+identity scale plus a positive residual --- combined with the energy
+bound of Section~\ref{sec:laguerre} yields a sufficient criterion of
+striking simplicity, and the sequence \eqref{eq:Mk}, with its
+digamma--Binet moment structure and atom exactly $\sqrt{2/\e}$, is a
+distinguished instance in which the criterion is endpoint-sharp
+(Remark~\ref{rem:sharp}). Beyond that, the theorem stands on its own:
+an explicit, nontrivially deformed Laguerre family that remains
+hyperbolic at every degree, with an elementary, machine-checked proof
+and an exact probabilistic mechanism behind it.
 
 \subsection*{Organization} Section~\ref{sec:moments} constructs the
 compound-Poisson law and proves $\E[U^k]=M_k$.
@@ -218,7 +224,7 @@ Section~\ref{sec:laguerre} collects the classical facts about $C_d$
 and proves the energy lemma. Section~\ref{sec:proof} proves
 Theorem~\ref{thm:main}. Section~\ref{sec:lean} documents the formal
 verification. Section~\ref{sec:remarks} closes with remarks on
-sharpness and on what is \emph{not} proved here.
+sharpness and an open question.
 
 \section{The compound-Poisson law behind the moments}\label{sec:moments}
 
@@ -423,11 +429,12 @@ With $u(z)=\hypF{-d}{1/2}{z}$ and $z=w^2/4d$, Kummer's equation
 $z\,u''+(\tfrac12-z)\,u'+d\,u=0$ \cite[Ch.~13]{dlmf} transforms under
 $C_d(w)=u(w^2/4d)$ by the chain rule:
 $C_d'=u'\cdot w/2d$ and
-$C_d''=u''\,w^2/4d^2+u'/2d$, so
+$C_d''=u''\,w^2/4d^2+u'/2d$, so, collecting terms (all derivatives of
+$u$ evaluated at $z=w^2/4d$),
 \[
 C_d''-\frac{w}{2d}C_d'+C_d
+=\frac{u''\,w^2}{4d^2}+\frac{u'}{2d}-\frac{u'\,w^2}{4d^2}+u
 =\frac{1}{d}\Bigl(z\,u''+\bigl(\tfrac12-z\bigr)u'+d\,u\Bigr)
-\cdot\frac{w^2/4d}{z}
 \;=\;0 . \qedhere
 \]
 \end{proof}
@@ -559,7 +566,7 @@ thirteen files, about $5{,}300$ lines:
 \begin{center}
 \footnotesize
 \begin{tabular}{@{}l p{0.64\textwidth}@{}}
-\texttt{Defs} & the polynomials $\Psi_d$, $C_d$, the sequences $M_k$, $S_1$; statement of the theorem\\
+\texttt{Defs} & the polynomials $\Psi_d$, $C_d$, the sequences $M_k$, $S_1$\\
 \texttt{Structure} & coefficient closed forms, degree, the Kummer ODE in polynomial form\\
 \texttt{Frullani} & Frullani's integral for exponentials\\
 \texttt{Binet} & the integer Binet identity (Lemma~\ref{lem:binet})\\
@@ -569,7 +576,7 @@ thirteen files, about $5{,}300$ lines:
 \texttt{Capstone} & discharge of the quadrature interface by the compound-Poisson pushforward\\
 \texttt{Energy} & Lemma~\ref{lem:energy} (real energy monotonicity, segment domination)\\
 \texttt{Hermite} & real-rootedness, simplicity and interlacing of $\He_n$, by induction\\
-\texttt{CriticalData} & Lemma~\ref{lem:critical} for $C_d$ via the bridge \eqref{eq:bridge}\\
+\texttt{CriticalData} & Lemma~\ref{lem:critical} for $C_d$ via the bridge \eqref{eq:bridge}; statement and proof of \texttt{theorem\_M} and \texttt{theorem\_M\_aeval}\\
 \texttt{SignCount} & the sign-alternation count, Step~3 above\\
 \end{tabular}
 \end{center}
@@ -598,9 +605,12 @@ counting argument then pins exactly $n+1$ simple roots. The identity
 coefficient recurrence, avoiding any appeal to unformalized special
 function theory.
 
-The final check reports:
+The final check reports, for the headline theorem and its
+evaluation-form companion alike,
 \begin{center}
 \texttt{'TheoremM.theorem\_M' depends on axioms:
+[propext, Classical.choice, Quot.sound]}\\
+\texttt{'TheoremM.theorem\_M\_aeval' depends on axioms:
 [propext, Classical.choice, Quot.sound]}
 \end{center}
 with zero \texttt{sorry}s in the tree (8489 compiled jobs). These
@@ -613,10 +623,15 @@ handled exactly.
 The formalization was produced jointly by two AI research agents
 (Claude ``Fable'' and GPT) working under the author's direction in a
 mutual-audit protocol (disjoint file ownership, cross line-audits of
-each other's proofs), with the Lean kernel as the final referee. An
-independent re-verification of the compiled proof term with an
-external Lean~4 kernel checker is in progress and will be reported in
-a revision.
+each other's proofs), with the Lean kernel as the final referee. In
+addition, the development has been re-verified independently of
+Lean's own kernel: the proof terms were exported with the upstream
+\texttt{lean4export} tool (v4.30.0) and re-checked by Nanoda
+(\texttt{nanoda\_lib}, commit \texttt{f58f2f6d}), an external
+implementation of the Lean~4 kernel, which reports
+\emph{``Checked 48241 declarations with no errors''} for an export
+containing \texttt{theorem\_M} and \texttt{theorem\_M\_aeval}, with
+the permitted axioms restricted to exactly the three listed above.
 
 \section{Concluding remarks}\label{sec:remarks}
 
@@ -637,16 +652,6 @@ $2d$ \emph{distinct} zeros). The formalized statement asserts realness
 of every complex root; distinctness is present in the formal
 development's counting layer but was not exported into the headline
 statement.
-\end{remark}
-
-\begin{remark}[what is not proved]
-Theorem~\ref{thm:main} is a statement about a fixed, explicit
-polynomial family. It neither implies nor is implied by any statement
-about the Riemann $\xi$-function; in the research program where
-$\Psi_d$ arose, the passage from finite-degree hyperbolicity to any
-statement about $\xi$ is a separate, open transport problem, and
-nothing in this paper bears on it. We state this explicitly to
-prevent over-reading.
 \end{remark}
 
 \begin{remark}[a question]
