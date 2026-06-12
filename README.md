@@ -1,125 +1,112 @@
-# Theorem M — a formally verified hyperbolicity theorem
+# Unconditional hyperbolicity of the critical Laguerre family
 
-**Status: PROVEN.** Kernel-checked in Lean 4 (v4.30.0) against pinned
-mathlib, with **zero `sorry`s** and only the three standard axioms:
+This repository contains a machine-checked proof of one theorem:
 
-```
-'TheoremM.theorem_M' depends on axioms: [propext, Classical.choice, Quot.sound]
-'TheoremM.theorem_M_aeval' depends on axioms: [propext, Classical.choice, Quot.sound]
-```
+> For every integer `d ≥ 1`, all `2d` complex zeros of the polynomial
+> `Ψ_d` are real.
 
-Independently re-verified with an external implementation of the
-Lean 4 kernel ([nanoda_lib](https://github.com/ammkrn/nanoda_lib) on a
-[lean4export](https://github.com/leanprover/lean4export) export):
-`Checked 48241 declarations with no errors`.
+Here `Ψ_d` is an explicit deformation of the Laguerre polynomial
+`L_d^(−1/2)` at its critical scaling: each coefficient is multiplied
+by a moment `M_k` built from factorials and harmonic numbers. These
+moments turn out to be the moment sequence of a concrete
+compound-Poisson random variable, and the theorem says that averaging
+the Laguerre polynomial against that randomness never pushes a zero
+off the real line — at any degree.
 
-## Statement
+The result is modest in scope but, as far as we know, not covered by
+the classical hyperbolicity-preservation theorems, and the proof is
+elementary: real-variable arguments only, no complex analysis. The
+whole argument is written up in a short paper and, separately,
+verified end-to-end in Lean 4.
 
-For every integer `d ≥ 1`, **all complex zeros of `Ψ_d` are real**, where
+## If you came here from the paper
 
-```
-Ψ_d(w) = Σ_{k=0}^{d}  (−1)^k · (d)_k · M_k / (d^k · (2k)!) · w^{2k}
-```
+| You want | Where it is |
+|---|---|
+| The paper itself | [`docs/preprint/main.pdf`](docs/preprint/main.pdf) (LaTeX source next to it) |
+| The formal statement | [`formal/TheoremM/CriticalData.lean`](formal/TheoremM/CriticalData.lean) — the theorem is named `theorem_M` (our internal working name for the result; the `aeval` variant is `theorem_M_aeval`) |
+| The definitions of `Ψ_d`, `C_d`, `M_k` | [`formal/TheoremM/Defs.lean`](formal/TheoremM/Defs.lean) |
+| The axiom check | [`scripts/check_axioms.sh`](scripts/check_axioms.sh) |
+| The independent kernel re-check | [`scripts/check_nanoda.sh`](scripts/check_nanoda.sh) |
+| The numerical sanity suite | [`scripts/theoremM_verify.py`](scripts/theoremM_verify.py) |
 
-with `(d)_k` the falling factorial, and the moment sequence
-
-```
-M_k = (2k)! · exp(γ·k − S₁(k)) / (4^k · k!),     S₁(k) = k·H_{k−1} − (k−1)
-```
-
-(`γ` = Euler–Mascheroni, `H_k` = harmonic number). In Lean:
+In Lean, the statement reads:
 
 ```lean
 theorem theorem_M (d : ℕ) (hd : 1 ≤ d) :
     ∀ z ∈ ((Psi d).map (algebraMap ℝ ℂ)).roots, z.im = 0
 ```
 
-(`formal/TheoremM/CriticalData.lean`, with the `aeval` companion
-`theorem_M_aeval`.)
+The development compiles with zero `sorry`s and depends only on the
+three axioms underlying all of mathlib (`propext`,
+`Classical.choice`, `Quot.sound`). The compiled proof has also been
+re-checked with [nanoda_lib](https://github.com/ammkrn/nanoda_lib),
+an independent implementation of the Lean 4 kernel, via a
+[lean4export](https://github.com/leanprover/lean4export) export. CI
+repeats all of this on every push.
 
-## Scope
+## Checking it yourself
 
-The claim of this repository is exactly the formal statement above —
-real-rootedness of the explicit polynomial family `Ψ_d` for every
-finite `d ≥ 1` — and nothing beyond it. `Ψ_d` is a moment deformation
-of the Laguerre polynomial `L_d^(−1/2)` at its critical scaling; the
-moments `M_k` are those of an explicit compound-Poisson random
-variable with atom `√(2/e)` at 1, so the theorem says that this exact
-averaging preserves hyperbolicity at every degree. Motivation
-(a Pólya–Schur-type preserver question), the full mathematical proof,
-and the derivation of the underlying measure are in the preprint
-(`docs/preprint/`).
-
-## Verify it yourself
-
-Requires [elan](https://github.com/leanprover/elan) (Lean toolchain
-manager); the toolchain version is pinned by `formal/lean-toolchain`.
+You need [elan](https://github.com/leanprover/elan), the Lean
+toolchain manager; everything else is pinned by the repository.
 
 ```sh
 cd formal
-lake exe cache get      # fetch precompiled mathlib (~minutes, no compile)
-lake build              # builds and kernel-checks the full tree
-../scripts/check_axioms.sh   # prints the axiom report; fails on any deviation
-../scripts/check_nanoda.sh   # exports theorem_M/theorem_M_aeval and checks them with nanoda_lib
+lake exe cache get           # fetch precompiled mathlib (no compiling, a few minutes)
+lake build                   # build and kernel-check the proof
+../scripts/check_axioms.sh   # print the axiom report; fails on any deviation
+../scripts/check_nanoda.sh   # re-check the export with the external kernel
 ```
 
-The numerical pre-certification suite (independent of Lean; mpmath/scipy):
+There is also a verification script that needs no Lean at all — it
+recomputes every identity and constant of the paper numerically
+(mpmath) and re-confirms the conclusion for `d ≤ 300`:
 
 ```sh
 python3 scripts/theoremM_verify.py
 ```
 
-## Proof architecture
+## How the proof goes
 
-The proof is a real-variable sign-alternation argument — no complex
-analysis on the critical path:
+Three steps, all on the real line (Sections 2–4 of the paper):
 
-1. **Frullani + integer Binet** (`Frullani.lean`, `Binet.lean`) — the
-   integral representation behind the moment sequence.
-2. **Compound-Poisson measure** (`CPMeasure.lean`) — a Lévy measure with
-   atom mass `−log p`, `p = √(2/e)`; its exponential moments ARE `M_k`;
-   the residual pushforward `μ` lives on `(0,1]` with even moments
-   `M_k − p`.
-3. **Decomposition + budget** (`MuBridge.lean`, `Capstone.lean`) —
-   `Ψ_d(x) = p·C_d(x) + ∫ C_d(vx) dμ(v)` and the strict budget
-   `1 − p < p`, transferring the sign of `C_d` at its critical points
-   to `Ψ_d`.
-4. **Hermite critical data** (`Hermite.lean`, `CriticalData.lean`) —
-   `C_d` is a scaled Hermite polynomial; all Hermite roots are real and
-   simple with interlacing, giving `d` critical points of `C_d` with
-   alternating critical-value signs.
-5. **Sign-count assembly** (`SignCount.lean`) — alternation forces `2d`
-   real roots; degree `2d` pins them all.
+1. **The moments are a compound-Poisson law.** The sequence `M_k` has
+   ratio `(k − 1/2)·exp(γ − H_{k−1})`, which classical integral
+   representations of the digamma function (Gauss, Frullani) match to
+   an explicit Lévy measure. This gives the exact decomposition
+   `Ψ_d(x) = p·C_d(x) + ∫ C_d(vx) dμ(v)` with atom `p = √(2/e)` and a
+   positive remainder of mass `1 − p`.
+2. **An energy inequality.** From the differential equation of `C_d`,
+   the quantity `C_d² + C_d′²` is nondecreasing on `x ≥ 0`. At every
+   critical point `c` of `C_d` this forces `|C_d(vc)| ≤ |C_d(c)|` for
+   all `v ∈ [0,1]`.
+3. **Sign counting.** Because `p > 1/2`, the two facts above make
+   `Ψ_d` copy the alternating signs of `C_d` at its critical points;
+   together with the sign at infinity that is `d` sign changes on
+   `(0, ∞)`, mirrored by evenness — `2d` real zeros, which is all of
+   them.
 
-| Module | Content |
-|--------|---------|
-| `Defs.lean` | `S1`, `M`, `Cpoly`, `Psi`; coefficient identities |
-| `Structure.lean` | degree, parity, leading-coefficient facts |
-| `Energy.lean` | real W1: `abs_Cpoly_le_of_critical` |
-| `Hermite.lean` | Hermite polynomials: splits, simple roots, interlacing, root counting |
-| `SignCount.lean` | `psi_roots_real_of_alternation` |
-| `MuBridge.lean` | `pAtom`, sign-transfer core `Psi_sign_of_budget` |
-| `Moments.lean`, `MomentsLimit.lean` | moment algebra and limits |
-| `Frullani.lean`, `Binet.lean` | integral representations |
-| `CPMeasure.lean` | the compound-Poisson construction |
-| `Capstone.lean` | `theorem_M_of_critical_data_measure` |
-| `CriticalData.lean` | critical data of `C_d`; **`theorem_M`** |
-
-## Documents
-
-- `docs/preprint/main.tex` / `main.pdf` — **the paper**: statement,
-  the compound-Poisson moment construction, the elementary
-  sign-alternation proof, and the formalization report
-  (11 pp., arXiv-ready).
+The Lean development follows the same route; the file names map onto
+the steps (`Frullani`, `Binet`, `CPMeasure`, `Moments`, `MuBridge`,
+`Capstone` for step 1; `Energy` for step 2; `Hermite`,
+`CriticalData`, `SignCount` for step 3, with `Defs` and `Structure`
+holding the definitions and basic facts).
 
 ## Authorship
 
-Developed by two AI research agents — Claude (Anthropic) and GPT
-(OpenAI) — working as a coordinated pair under the direction of
-Michael Haufschild, 2026. The Lean kernel is the referee: no claim in
-`formal/` rests on trusting the authors.
+The mathematics and the Lean formalization were developed by two AI
+research agents — Claude (Anthropic) and GPT (OpenAI) — working under
+the direction of Michael Haufschild, 2026. We are aware that
+AI-produced mathematics warrants extra skepticism; that is precisely
+why everything here is machine-checked, why the kernel check was
+repeated with an independent kernel implementation, and why the
+numerical suite re-derives the paper's claims from scratch. No claim
+in this repository rests on trusting the authors. If you find an
+error anyway — in the paper's prose, the code, or anything between —
+please open an issue.
 
 ## License
 
-MIT (see `LICENSE`). Depends on [mathlib](https://github.com/leanprover-community/mathlib4)
+MIT (see `LICENSE`). Depends on
+[mathlib](https://github.com/leanprover-community/mathlib4)
 (Apache 2.0).
