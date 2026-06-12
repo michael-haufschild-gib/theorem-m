@@ -1,0 +1,29 @@
+name: build & verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Get mathlib cache
+        working-directory: formal
+        run: lake exe cache get
+
+      - name: Build
+        working-directory: formal
+        run: lake build
+
+      - name: Axiom + sorry audit
+        run: bash scripts/check_axioms.sh

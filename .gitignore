@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+*.local
+docs/reports/
+docs/literature/
+
+# AI
+.claude/
+.agents/
+.codex/
+
+# Editor directories and files
+.vscode/*
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Testing
+test-results/
+
+# Build artifacts
+/build
+.cache
+
+# Lean/Lake build cache and dependencies
+formal/.lake/
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+
+# Investigation/audit reports (local-only)
+docs/reports/
+
+
+# Screenshots and test artifacts
+screenshots/
+
+# Serena (local agent tooling)
+.serena/
