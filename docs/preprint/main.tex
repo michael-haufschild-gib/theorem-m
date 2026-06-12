@@ -81,8 +81,8 @@ P\'olya--Schur multiplier sequence --- no nondegenerate moment
 sequence is, since moment sequences are log-convex while multiplier
 sequences must be log-concave --- so the hyperbolicity proved here is
 a property of the pair (sequence, family) and is not subsumed by any
-coefficientwise preserver theorem. To our knowledge $\Psi_d$ is, in
-this generality, a new explicit hyperbolic deformation of the
+universal coefficientwise preserver theorem. To our knowledge $\Psi_d$
+is, in this generality, a new explicit hyperbolic deformation of the
 Laguerre--Hermite family.
 \end{abstract}
 
@@ -139,7 +139,8 @@ damped by a different factor. Moreover, $(M_k)$ is provably
 \emph{not} a multiplier sequence in the sense of P\'olya--Schur:
 already the image of $(w^2-1)^2$ under the coefficientwise action has
 four nonreal zeros (Proposition~\ref{prop:notms}), so no
-coefficientwise preserver theorem can yield
+universal coefficientwise preserver theorem for all even hyperbolic
+polynomials can yield
 Theorem~\ref{thm:main} --- the hyperbolicity below is a property of
 the pair (sequence, family), not of the sequence alone.
 
@@ -246,8 +247,8 @@ and proves the energy lemma. Section~\ref{sec:proof} proves
 Theorem~\ref{thm:main}. Section~\ref{sec:lean} documents the formal
 verification. Section~\ref{sec:remarks} closes with remarks on
 sharpness and a proof that $(M_k)$ is \emph{not} a P\'olya--Schur
-multiplier sequence, so that no coefficientwise preserver theorem
-subsumes Theorem~\ref{thm:main}.
+multiplier sequence, so that no universal coefficientwise preserver
+theorem subsumes Theorem~\ref{thm:main}.
 
 \section{The compound-Poisson law behind the moments}\label{sec:moments}
 
@@ -748,8 +749,8 @@ $M_2 w^4 - 2M_1 w^2 + 1$, all four of whose zeros are nonreal.
 
 \begin{proof}
 The zeros satisfy $w^2=\bigl(M_1\pm\sqrt{M_1^2-M_2}\,\bigr)/M_2$, and
-by \eqref{eq:Mk}, $M_1=\e^{\gamma}/2$ and $M_2=\tfrac34\e^{2\gamma-1}$,
-so
+by \eqref{eq:Mk}, $M_0=1$, $M_1=\e^{\gamma}/2$ and
+$M_2=\tfrac34\e^{2\gamma-1}$, so
 \[
 M_1^2-M_0M_2
 \;=\;\frac{\e^{2\gamma}}{4}\Bigl(1-\frac{3}{\e}\Bigr)\;<\;0
@@ -761,8 +762,9 @@ Hence $w^2$ is nonreal, and a nonreal number has no real square root.
 \begin{remark}[moment sequences vs.\ multiplier sequences]\label{rem:logconvex}
 The failure is structural, not an accident of \eqref{eq:Mk}. Applying
 the coefficientwise action of any sequence $(\gamma_k)$ with
-$\gamma_k>0$ to the hyperbolic polynomials $w^{2k-2}(w^2-1)^2$ shows
-that an even multiplier sequence must satisfy the Tur\'an inequalities
+$\gamma_k>0$ to the hyperbolic polynomials
+$w^{2k-2}(w^2-1)^2$ for each $k\ge1$ shows that an even multiplier
+sequence must satisfy the Tur\'an inequalities
 $\gamma_k^2\ge\gamma_{k-1}\gamma_{k+1}$, i.e.\ must be
 \emph{log-concave}. But every moment sequence
 $\gamma_k=\E[V^k]$ of a nonnegative random variable is
@@ -770,12 +772,13 @@ $\gamma_k=\E[V^k]$ of a nonnegative random variable is
 a.s.\ constant. So no nondegenerate moment sequence is a multiplier
 sequence --- the two classes meet only in the geometric sequences
 $\gamma_k=c^k$, whose action is the rescaling $w\mapsto\sqrt{c}\,w$.
-In particular, no coefficientwise preserver theorem could prove
-Theorem~\ref{thm:main}: what the theorem certifies is a property of
-the \emph{pair} (sequence, family), powered by the energy structure of
-$C_d$ (Lemma~\ref{lem:energy}) and the atom bound $p>\tfrac12$ --- and
-by Proposition~\ref{prop:notms} that pairing is essential. We regard
-this as making Theorem~\ref{thm:main} more interesting, not less.
+In particular, no P\'olya--Schur-type universal coefficientwise
+preserver theorem could prove Theorem~\ref{thm:main}: what the theorem
+certifies is a property of the \emph{pair} (sequence, family), powered
+by the energy structure of $C_d$ (Lemma~\ref{lem:energy}) and the atom
+bound $p>\tfrac12$ --- and by Proposition~\ref{prop:notms} that pairing
+is essential. We regard this as making Theorem~\ref{thm:main} more
+interesting, not less.
 \end{remark}
 
 \subsection*{Acknowledgments}

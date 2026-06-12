@@ -14,7 +14,7 @@ the Laguerre polynomial against that randomness never pushes a zero
 off the real line — at any degree.
 
 The result is modest in scope but provably not an instance of the
-classical hyperbolicity-preservation theorems: the sequence `M_k`
+classical universal hyperbolicity-preservation theorems: the sequence `M_k`
 fails the Pólya–Schur multiplier criterion already on
 `(w² − 1)²` (Section 6 of the paper — in fact no nondegenerate
 moment sequence preserves hyperbolicity universally, by
