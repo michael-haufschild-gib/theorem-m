@@ -1,0 +1,716 @@
+% ============================================================
+% Unconditional Hyperbolicity of the Critical Laguerre Family:
+% An Elementary and Formally Verified Proof
+%
+% arXiv-ready draft v1 — 2026-06-12.
+% Title and author block are placeholders pending Michael's decision
+% (see ACKNOWLEDGMENTS / AUTHORSHIP note near \author).
+% Compile: pdflatex (no external .bib; thebibliography inline).
+% ============================================================
+\documentclass[11pt]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\raggedbottom
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\He}{\mathrm{He}}
+\newcommand{\hypF}[3]{{}_1F_1\!\left(#1;\,#2;\,#3\right)}
+
+\begin{document}
+
+\title[Hyperbolicity of the critical Laguerre family]{Unconditional
+hyperbolicity of the critical Laguerre family:\\ an elementary and
+formally verified proof}
+
+% AUTHORSHIP NOTE (to be settled by M.~Haufschild before submission):
+% author list, affiliation, and the framing of the AI contribution are
+% the repository owner's call. The Lean formalization was produced
+% jointly by two AI research agents ("Fable" = Claude, and GPT) under
+% the author's direction; see Section 6 and the Acknowledgments.
+\author{Michael Haufschild}
+\email{haufschildmichael@gmail.com}
+
+\date{June 12, 2026}
+
+\begin{abstract}
+For $d\ge 1$ let
+$C_d(w)=\hypF{-d}{\tfrac12}{w^2/4d}$ --- up to normalization the
+Laguerre polynomial $L_d^{(-1/2)}$ at its critical scaling --- and let
+\[
+\Psi_d(w)\;=\;\sum_{k=0}^{d}(-1)^k\,
+\frac{d^{\underline{k}}\,M_k}{d^{\,k}\,(2k)!}\,w^{2k},
+\qquad
+M_k=\frac{(2k)!}{4^k\,k!}\,\e^{\gamma k-S_1(k)},
+\]
+where $d^{\underline{k}}$ is the falling factorial,
+$\gamma$ is Euler's constant and $S_1(k)=\sum_{j=1}^{k}H_{j-1}$ is the
+partial sum of harmonic numbers. We prove that for every $d\ge 1$ all
+$2d$ zeros of $\Psi_d$ are real and simple. The numbers $M_k$ are
+shown to be the moment sequence of an explicit compound-Poisson random
+variable $U\in(0,1]$ with atom $\Prob(U=1)=\sqrt{2/\e}$, so that
+$\Psi_d(w)=\E\,C_d(\sqrt{U}\,w)$: hyperbolicity of the whole family is
+an exact averaging, not an asymptotic, phenomenon. The proof is
+elementary --- real-variable throughout, using only the Kummer
+differential equation, an energy monotonicity along the real axis, and
+a sign-alternation count at the critical points of $C_d$ --- and it has
+been formally verified: the theorem is proved in Lean~4 against the
+mathlib library with zero \texttt{sorry}s, depending only on the three
+standard axioms. To our knowledge $\Psi_d$ is, in this generality, a
+new explicit hyperbolic deformation of the Laguerre--Hermite family.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+
+A real polynomial is \emph{hyperbolic} if all of its complex zeros are
+real. The hyperbolicity of the classical orthogonal families ---
+Hermite, Laguerre, Jacobi --- is classical
+\cite[Thm.~3.3.1]{szego}, and the linear operations preserving
+hyperbolicity were characterized by P\'olya and Schur
+\cite{polya-schur}. Deciding hyperbolicity of a \emph{specific}
+explicitly given family that is not covered by such preserver theorems
+remains, in general, a genuinely hard problem: one must either locate
+all the zeros or manufacture enough sign changes.
+
+This paper proves hyperbolicity, with simple zeros, for the following
+family. Throughout, $d^{\underline{k}}=d(d-1)\cdots(d-k+1)$ denotes the
+falling factorial, $H_n=\sum_{j=1}^n 1/j$ the harmonic numbers
+($H_0=0$), $\gamma$ Euler's constant, and
+\begin{equation}\label{eq:S1}
+S_1(k)\;=\;\sum_{j=1}^{k}H_{j-1}\;=\;kH_{k-1}-(k-1)\qquad(k\ge 1),
+\qquad S_1(0)=0 .
+\end{equation}
+
+\begin{definition}\label{def:family}
+For integers $k\ge 0$ and $d\ge 1$ set
+\begin{equation}\label{eq:Mk}
+M_k\;=\;\frac{(2k)!}{4^k\,k!}\,\e^{\gamma k-S_1(k)},
+\end{equation}
+\begin{equation}\label{eq:CdPsid}
+\begin{aligned}
+C_d(w)\;&=\;\sum_{k=0}^{d}(-1)^k\,
+\frac{d^{\underline{k}}}{d^{\,k}(2k)!}\,w^{2k}
+\;=\;\hypF{-d}{\tfrac12}{\frac{w^2}{4d}},\\
+\Psi_d(w)\;&=\;\sum_{k=0}^{d}(-1)^k\,
+\frac{d^{\underline{k}}\,M_k}{d^{\,k}(2k)!}\,w^{2k}.
+\end{aligned}
+\end{equation}
+\end{definition}
+
+By Kummer's transformation of the confluent hypergeometric polynomial,
+$C_d$ is the Laguerre polynomial $L_d^{(-1/2)}$ at the argument scaling
+$w^2/4d$ that places its zeros at unit mean density --- we call
+$\{C_d\}_{d \ge 1}$ the \emph{critical Laguerre family}, and
+$\Psi_d$ its \emph{moment deformation} by the sequence
+\eqref{eq:Mk}. The deformation is of genuinely infinite order: the
+sequence $(M_k)$ is strictly decreasing
+(the ratio test below reduces this to $\log(1+x)<x$), from $M_0=1$
+through $M_1=\e^{\gamma}/2=0.89053\ldots$ toward its limit
+$p:=\sqrt{2/\e}=0.85776\ldots$, so every coefficient of $C_d$ is
+damped by a different factor. Nothing about \eqref{eq:Mk} makes
+$(M_k)$ visibly a multiplier sequence in the sense of
+P\'olya--Schur, and we do not know a preserver-theoretic proof of
+Theorem~\ref{thm:main}.
+
+\begin{theorem}[Main theorem]\label{thm:main}
+For every integer $d\ge 1$, all $2d$ zeros of $\Psi_d$ are real and
+simple.
+\end{theorem}
+
+The proof has two ingredients, both of independent interest.
+
+\emph{First ingredient: the moments are a compound-Poisson law.} The
+sequence \eqref{eq:Mk} is exactly the moment sequence of an explicit
+random variable: let $N$ be a Poisson point process on $(0,\infty)$
+with the finite intensity measure
+\[
+\lambda(\dd t)\;=\;\eta(t)\,\frac{\e^{-t}}{1-\e^{-t}}\,\dd t,
+\qquad
+\eta(t)\;=\;\frac{\e^{t/2}}{t}-\frac{1}{1-\e^{-t}}\;>\;0 ,
+\]
+and set $U=\e^{-\sum_j T_j}$, the product over the points of $N$. Then
+(Theorem~\ref{thm:moments})
+\[
+\E\,[U^k]\;=\;M_k \quad (k\ge 0),
+\qquad
+\Prob(U=1)\;=\;p\;=\;\sqrt{2/\e}\,.
+\]
+Consequently, writing $\nu$ for the law of $v=\sqrt{U}$ and
+$\mu=\nu-p\,\delta_1$ for its non-atomic part,
+\begin{equation}\label{eq:decomp}
+\Psi_d(w)\;=\;\E\,C_d\bigl(\sqrt{U}\,w\bigr)
+\;=\;p\,C_d(w)\;+\;\int_{(0,1)}C_d(vw)\,\dd\mu(v),
+\end{equation}
+with $\mu\ge 0$ and $\mu\bigl((0,1)\bigr)=1-p$.
+The identity \eqref{eq:decomp} is exact, coefficient by coefficient,
+at every finite $d$; no limit is involved.
+
+\emph{Second ingredient: a one-line energy bound at the critical
+points.} Writing $E=C_d^2+C_d'^2$, the Kummer differential equation
+$C_d''-(w/2d)\,C_d'+C_d=0$ gives $E'(x)=(x/d)\,C_d'(x)^2\ge 0$ on
+$x\ge 0$; since $E(0)=1$, every critical point $c$ of $C_d$ satisfies
+$|C_d(c)|\ge 1$ and, crucially, the \emph{whole segment} $[0,c]$ is
+dominated: $|C_d(vc)|\le |C_d(c)|$ for $0\le v\le 1$. Feeding this
+into \eqref{eq:decomp} and using only $p>\tfrac12$ shows that
+$\Psi_d$ \emph{copies the sign pattern} of $C_d$ at the critical
+points of $C_d$. The classical interlacing data of the Laguerre zeros
+then forces $d$ sign changes of $\Psi_d$ on $(0,\infty)$, which (with
+evenness and the degree count) pins all $2d$ zeros to the real axis,
+each simple.
+
+No complex analysis enters: no Rouch\'e contour, no
+Hermite--Biehler theory, no saddle points. The argument runs entirely
+on the real line, which is also what made a complete formal
+verification practical.
+
+\emph{Formal verification.} Theorem~\ref{thm:main} has been proved in
+Lean~4 \cite{lean4} against the mathlib library \cite{mathlib}: the
+statement
+\begin{center}
+\texttt{theorem theorem\_M (d :\ $\N$) (hd :\ 1 $\le$ d) :\\
+$\forall$ z $\in$ ((Psi d).map (algebraMap $\R$ $\C$)).roots, z.im = 0}
+\end{center}
+compiles with zero \texttt{sorry}s and depends only on the three
+standard axioms of the Lean/mathlib universe
+(\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}).
+Section~\ref{sec:lean} describes the formalization; the source is
+distributed with this paper.
+
+\subsection*{Motivation and scope}
+The family $\Psi_d$ arises in a research program around the Riemann
+$\xi$-function, as the fixed (degree-independent) moment deformation
+of the critical Laguerre profile; the moments \eqref{eq:Mk} are the
+``hard head'' coefficients of that program's critical model lift, and
+Theorem~\ref{thm:main} establishes the hyperbolicity of the model
+anchor at every finite degree. We emphasize the scope plainly:
+\textbf{Theorem~\ref{thm:main} proves nothing about the Riemann
+hypothesis}. Whatever interest the theorem has should rest on its
+self-standing content: an explicit, nontrivially deformed Laguerre
+family that remains hyperbolic at every degree, with an elementary,
+machine-checked proof and an exact probabilistic mechanism
+\eqref{eq:decomp} behind it.
+
+\subsection*{Organization} Section~\ref{sec:moments} constructs the
+compound-Poisson law and proves $\E[U^k]=M_k$.
+Section~\ref{sec:laguerre} collects the classical facts about $C_d$
+and proves the energy lemma. Section~\ref{sec:proof} proves
+Theorem~\ref{thm:main}. Section~\ref{sec:lean} documents the formal
+verification. Section~\ref{sec:remarks} closes with remarks on
+sharpness and on what is \emph{not} proved here.
+
+\section{The compound-Poisson law behind the moments}\label{sec:moments}
+
+\begin{lemma}\label{lem:eta}
+For $t>0$ let
+\(
+\eta(t)=\dfrac{\e^{t/2}}{t}-\dfrac{1}{1-\e^{-t}}.
+\)
+Then
+\begin{gather*}
+\eta(t)\;=\;\frac{2\sinh(t/2)-t}{t\,(1-\e^{-t})}\;>\;0,
+\qquad
+\eta(t)=\frac{t}{24}+O(t^2)\ \ (t\downarrow 0),\\
+\eta(t)\,\frac{\e^{-t}}{1-\e^{-t}}=O\!\bigl(t^{-1}\e^{-t/2}\bigr)\ \ (t\to\infty).
+\end{gather*}
+In particular
+\(
+\lambda(\dd t):=\eta(t)\,\frac{\e^{-t}}{1-\e^{-t}}\,\dd t
+\)
+is a finite positive measure on $(0,\infty)$.
+\end{lemma}
+
+\begin{proof}
+Multiplying $\eta$ by $t(1-\e^{-t})>0$ gives
+$\e^{t/2}(1-\e^{-t})-t=\e^{t/2}-\e^{-t/2}-t=2\sinh(t/2)-t>0$ for
+$t>0$, since $\sinh u>u$ for $u>0$. The expansion at $0$ is immediate
+from $2\sinh(t/2)-t=t^3/24+O(t^5)$ and $t(1-\e^{-t})=t^2+O(t^3)$; the
+decay at infinity from $2\sinh(t/2)\le \e^{t/2}$. Both endpoints are
+integrable against $\e^{-t}/(1-\e^{-t})\,\dd t \sim \dd t/t$ at $0$ and
+$\sim\e^{-t}\dd t$ at $\infty$, whence $\lambda$ is finite.
+\end{proof}
+
+\begin{definition}\label{def:U}
+Let $N=\{T_j\}$ be a Poisson point process on $(0,\infty)$ with
+intensity $\lambda$ (a.s.\ finitely many points, since
+$\lambda$ is finite), and set
+\[
+Y\;=\;\sum_j T_j\;\in\;[0,\infty),
+\qquad
+U\;=\;\e^{-Y}\;\in\;(0,1] .
+\]
+\end{definition}
+
+The variable $U$ is a compound-Poisson exponential functional; its
+atom at $1$ is the no-point event,
+$\Prob(U=1)=\e^{-\lambda((0,\infty))}>0$. By Campbell's theorem
+(the Laplace functional of a Poisson process,
+\cite[Sec.~3.2]{kingman}),
+\begin{equation}\label{eq:CP}
+\E\,[U^k]\;=\;\E\,\e^{-kY}
+\;=\;\exp\!\Bigl(\int_0^\infty\bigl(\e^{-kt}-1\bigr)\lambda(\dd t)\Bigr),
+\qquad k\ge 0 .
+\end{equation}
+
+The transform of $\eta$ is a Binet-type integral. We only need it at
+the positive integers, where it is elementary:
+
+\begin{lemma}[integer Binet identity]\label{lem:binet}
+For every integer $k\ge 1$,
+\[
+\int_0^\infty \e^{-kt}\,\eta(t)\,\dd t
+\;=\;H_{k-1}-\gamma-\log\Bigl(k-\tfrac12\Bigr).
+\]
+\end{lemma}
+
+\begin{proof}
+Split $\eta(t)\e^{-kt}=\bigl(\e^{-(k-1/2)t}-\e^{-t}\bigr)/t
++\bigl(\e^{-t}/t-\e^{-kt}/(1-\e^{-t})\bigr)$. Each part is absolutely
+integrable: the first is bounded near $0$ (numerator $=O(t)$) and
+decays exponentially; the second is Gauss's integrand for the digamma
+function. Frullani's integral \cite[Sec.~12.16]{ww} gives
+\[
+\int_0^\infty\frac{\e^{-(k-1/2)t}-\e^{-t}}{t}\,\dd t
+=-\log\Bigl(k-\tfrac12\Bigr),
+\]
+and Gauss's formula \cite[Sec.~12.3]{ww}
+\[
+\int_0^\infty\Bigl(\frac{\e^{-t}}{t}-\frac{\e^{-kt}}{1-\e^{-t}}\Bigr)\dd t
+=\psi(k)=H_{k-1}-\gamma
+\]
+for the digamma function $\psi=\Gamma'/\Gamma$ at the positive integer
+$k$. Adding the two evaluations gives the claim.
+\end{proof}
+
+\begin{theorem}[moment identification]\label{thm:moments}
+$\E\,[U^k]=M_k$ for every integer $k\ge 0$, and
+$\Prob(U=1)=p=\sqrt{2/\e}$. Consequently, with $\nu$ the law of
+$v=\sqrt{U}$ and $\mu:=\nu-p\,\delta_1$,\, $\mu$ is a positive measure
+supported in $(0,1)$ with total mass $1-p$, and for every $d\ge 1$ the
+exact decomposition \eqref{eq:decomp} holds.
+\end{theorem}
+
+\begin{proof}
+\emph{Ratios.} For $k\ge 1$, by \eqref{eq:CP},
+\[
+\log\frac{\E[U^k]}{\E[U^{k-1}]}
+=\int_0^\infty\bigl(\e^{-kt}-\e^{-(k-1)t}\bigr)
+\,\eta(t)\,\frac{\e^{-t}}{1-\e^{-t}}\,\dd t
+=-\int_0^\infty \e^{-kt}\,\eta(t)\,\dd t,
+\]
+because $\bigl(\e^{-kt}-\e^{-(k-1)t}\bigr)\e^{-t}/(1-\e^{-t})
+=-\e^{-kt}$. By Lemma~\ref{lem:binet},
+\begin{equation}\label{eq:ratio}
+\frac{\E[U^k]}{\E[U^{k-1}]}
+=\Bigl(k-\tfrac12\Bigr)\,\e^{\gamma-H_{k-1}} .
+\end{equation}
+On the other hand, from \eqref{eq:Mk} and the telescoping
+$S_1(k)-S_1(k-1)=H_{k-1}$ of \eqref{eq:S1},
+\[
+\frac{M_k}{M_{k-1}}
+=\frac{2k(2k-1)}{4k}\,\e^{\gamma-H_{k-1}}
+=\Bigl(k-\tfrac12\Bigr)\,\e^{\gamma-H_{k-1}} .
+\]
+Since $\E[U^0]=1=M_0$, induction gives $\E[U^k]=M_k$ for all $k$.
+
+\emph{Atom.} Since $U\in(0,1]$, $U^k\downarrow\mathbf 1_{\{U=1\}}$
+pointwise, so by dominated convergence
+$\Prob(U=1)=\lim_k \E[U^k]=\lim_k M_k$. Stirling's formula gives
+\[
+\frac{(2k)!}{4^k\,k!}=\sqrt2\,k^k\e^{-k}\,\bigl(1+O(1/k)\bigr),
+\]
+while $H_{k-1}=\log k+\gamma-\tfrac1{2k}+O(k^{-2})$ and \eqref{eq:S1}
+give $\gamma k-S_1(k)=-k\log k+k-\tfrac12+O(1/k)$; multiplying,
+$M_k=\sqrt2\,\e^{-1/2}+O(1/k)\to\sqrt{2/\e}$.
+
+\emph{Decomposition.} $v=\sqrt U\in(0,1]$ has an atom of mass exactly
+$p$ at $1$ and no other mass on $\{1\}$, so $\mu=\nu-p\delta_1\ge 0$
+is supported in $(0,1)$ with mass $1-p$. Finally, for any $d\ge 1$,
+expanding the finite sum \eqref{eq:CdPsid} and using
+$\E[(\sqrt U)^{2k}]=\E[U^k]=M_k$,
+\[
+\E\,C_d(\sqrt U\,w)
+=\sum_{k=0}^{d}(-1)^k\frac{d^{\underline k}}{d^{\,k}(2k)!}\,
+\E[U^k]\;w^{2k}
+=\Psi_d(w),
+\]
+which is \eqref{eq:decomp} after splitting $\nu=p\,\delta_1+\mu$.
+\end{proof}
+
+\begin{remark}
+Only three consequences of Theorem~\ref{thm:moments} are used below:
+$\mu\ge0$, the mass $\mu((0,1))=1-p$, and the support
+$\operatorname{supp}\mu\subseteq[0,1]$. The specific shape of
+$\lambda$ matters only through the closed form \eqref{eq:Mk} of the
+moments. Note also $p^2=2/\e>1/4$, i.e.
+\begin{equation}\label{eq:phalf}
+p\;>\;\tfrac12 ,
+\end{equation}
+the single inequality on which the entire sign-transfer argument runs
+(it amounts to $8>\e$).
+\end{remark}
+
+\section{The critical Laguerre polynomial and its energy}\label{sec:laguerre}
+
+\begin{lemma}[Hermite bridge and zeros]\label{lem:hermite}
+Let $\He_n$ denote the probabilists' Hermite polynomials,
+$\He_n(x)=(-1)^n\e^{x^2/2}\frac{\dd^n}{\dd x^n}\e^{-x^2/2}$. Then
+\begin{equation}\label{eq:bridge}
+C_d(w)\;=\;\frac{\He_{2d}\bigl(w/\sqrt{2d}\bigr)}{\He_{2d}(0)},
+\qquad
+\He_{2d}(0)=(-1)^d\,(2d-1)!! .
+\end{equation}
+Consequently $C_d$ is an even polynomial of degree $2d$ with
+$C_d(0)=1$, and all its zeros are real and simple:
+\[
+-\rho_d<\dots<-\rho_1<0<\rho_1<\dots<\rho_d .
+\]
+\end{lemma}
+
+\begin{proof}
+The quadratic transformation between Hermite and Laguerre polynomials
+\cite[(5.6.1)]{szego}, in confluent-hypergeometric form
+\cite[Ch.~18]{dlmf}, reads
+$H_{2d}(x)=(-1)^d\frac{(2d)!}{d!}\,\hypF{-d}{\tfrac12}{x^2}$ for the
+physicists' polynomials $H_n$; converting by
+$\He_n(x)=2^{-n/2}H_n(x/\sqrt2)$ and substituting $x=w/\sqrt{4d}$
+yields \eqref{eq:bridge}, the constant being
+$\He_{2d}(0)=(-1)^d(2d)!/(2^d d!)=(-1)^d(2d-1)!!$. The zeros of
+Hermite polynomials are real and simple \cite[Thm.~3.3.1]{szego}, and
+$0$ is not among them for even index since $\He_{2d}(0)\neq 0$;
+evenness of $\He_{2d}$ arranges them symmetrically.
+
+\emph{Remark on the formal proof.} In the Lean formalization the
+identity \eqref{eq:bridge} is not imported from the literature: both
+sides are even polynomials with constant term $1$ whose even
+coefficient sequences satisfy the same first-order recurrence
+\[
+(2k+1)(2k+2)\,a_{k+1}\;=\;\bigl(2k-2d\bigr)\,a_k\,/\,(2d)
+\]
+forced by their respective differential equations, and the
+real-rootedness of $\He_n$, with simplicity and the interlacing used
+below, is proved from scratch by induction on $n$ through the
+recurrence $\He_{n+1}=x\He_n-\He_n'$ (Section~\ref{sec:lean}).
+\end{proof}
+
+\begin{lemma}[Kummer ODE]\label{lem:ode}
+$C_d''(w)-\dfrac{w}{2d}\,C_d'(w)+C_d(w)=0$.
+\end{lemma}
+
+\begin{proof}
+With $u(z)=\hypF{-d}{1/2}{z}$ and $z=w^2/4d$, Kummer's equation
+$z\,u''+(\tfrac12-z)\,u'+d\,u=0$ \cite[Ch.~13]{dlmf} transforms under
+$C_d(w)=u(w^2/4d)$ by the chain rule:
+$C_d'=u'\cdot w/2d$ and
+$C_d''=u''\,w^2/4d^2+u'/2d$, so
+\[
+C_d''-\frac{w}{2d}C_d'+C_d
+=\frac{1}{d}\Bigl(z\,u''+\bigl(\tfrac12-z\bigr)u'+d\,u\Bigr)
+\cdot\frac{w^2/4d}{z}
+\;=\;0 . \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[critical data]\label{lem:critical}
+$C_d'$ has exactly $2d-1$ zeros, all real and simple; on $[0,\infty)$
+they are
+$0=c_0<c_1<\dots<c_{d-1}$, interlacing with the zeros as
+\[
+0=c_0<\rho_1<c_1<\rho_2<\dots<c_{d-1}<\rho_d ,
+\]
+and the critical values alternate in sign:
+\begin{equation}\label{eq:altsign}
+\sgn C_d(c_m)\;=\;(-1)^m,\qquad m=0,\dots,d-1 .
+\end{equation}
+For $d=1$ the list of positive critical points is empty and
+\eqref{eq:altsign} reduces to $C_1(0)=1>0$.
+\end{lemma}
+
+\begin{proof}
+$C_d'$ has degree $2d-1$; Rolle's theorem places at least one of its
+zeros strictly between consecutive zeros of $C_d$, which accounts for
+$2d-1$ of them and therefore for all, each simple, one per gap. The
+gap $(-\rho_1,\rho_1)$ contains the critical point $0$ (evenness). On
+$(\rho_m,\rho_{m+1})$ the polynomial $C_d$ has no zero, hence constant
+sign; the sign on $(-\rho_1,\rho_1)$ is $+$ because $C_d(0)=1$, and it
+flips across each simple zero $\rho_m$, so the sign on
+$(\rho_m,\rho_{m+1})$ is $(-1)^m$. Since
+$c_m\in(\rho_m,\rho_{m+1})$ for $1\le m\le d-1$ and $c_0=0$, the
+display \eqref{eq:altsign} follows.
+\end{proof}
+
+\begin{lemma}[energy monotonicity and segment domination]\label{lem:energy}
+Let $E(x)=C_d(x)^2+C_d'(x)^2$. Then $E'(x)=\dfrac{x}{d}\,C_d'(x)^2\ge0$
+for $x\ge 0$, and $E(0)=1$. Consequently, for every critical point
+$c\ge 0$ of $C_d$ and every $v\in[0,1]$,
+\begin{equation}\label{eq:domination}
+|C_d(vc)|\;\le\;|C_d(c)| ,
+\qquad\text{and}\qquad
+|C_d(c)|\;\ge\;1 .
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Differentiate and substitute the ODE of Lemma~\ref{lem:ode}:
+\[
+E'=2C_d'\,\bigl(C_d+C_d''\bigr)=2C_d'\cdot\frac{x}{2d}\,C_d'
+=\frac{x}{d}\,C_d'^2\;\ge\;0\qquad(x\ge0).
+\]
+$E(0)=C_d(0)^2+C_d'(0)^2=1+0$. Monotonicity gives, for $0\le v\le1$,
+\[
+C_d(vc)^2\;\le\;E(vc)\;\le\;E(c)\;=\;C_d(c)^2 ,
+\]
+the last equality because $C_d'(c)=0$; and
+$C_d(c)^2=E(c)\ge E(0)=1$.
+\end{proof}
+
+\begin{remark}
+Lemma~\ref{lem:energy} is the real-axis case of an energy monotonicity
+that in fact holds along every horizontal line in $\C$
+($\partial_x(|C_d|^2+|C_d'|^2)=(x/d)|C_d'|^2$, the imaginary part of
+$w$ contributing no real part to the cross terms). Only the real-axis
+case is needed here, and only it was formalized. We also note that
+\eqref{eq:domination} with constant $1$ is what makes the argument
+work with no room to spare; see Remark~\ref{rem:sharp}.
+\end{remark}
+
+\section{Proof of the main theorem}\label{sec:proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Fix $d\ge1$ and abbreviate $p=\sqrt{2/\e}$. Recall from
+\eqref{eq:decomp} that
+$\Psi_d(x)=p\,C_d(x)+\int_{(0,1)}C_d(vx)\,\dd\mu(v)$ with $\mu\ge0$ of
+total mass $1-p$.
+
+\emph{Step 1: $\Psi_d$ copies the critical signs of $C_d$.} Let
+$c\in\{c_0,\dots,c_{d-1}\}$ be a nonnegative critical point of $C_d$.
+By the segment domination \eqref{eq:domination},
+\[
+\Bigl|\Psi_d(c)-p\,C_d(c)\Bigr|
+\;\le\;\int_{(0,1)}\bigl|C_d(vc)\bigr|\,\dd\mu(v)
+\;\le\;(1-p)\,\bigl|C_d(c)\bigr|
+\;<\;p\,\bigl|C_d(c)\bigr| ,
+\]
+the last (strict) inequality by \eqref{eq:phalf} and
+$|C_d(c)|\ge1>0$. Hence $\Psi_d(c)\ne0$ and
+\begin{equation}\label{eq:signcopy}
+\sgn\Psi_d(c_m)\;=\;\sgn C_d(c_m)\;=\;(-1)^m,
+\qquad m=0,\dots,d-1 .
+\end{equation}
+
+\emph{Step 2: tail sign.} The leading coefficient of $\Psi_d$ is
+$(-1)^d\,d!\,M_d/\bigl(d^{\,d}(2d)!\bigr)$, of sign $(-1)^d$ since
+$M_d>0$; the degree is exactly $2d$. Hence
+$\sgn\Psi_d(x)=(-1)^d$ for all sufficiently large $x>0$.
+
+\emph{Step 3: count.} By \eqref{eq:signcopy} and Step~2 the sequence
+of values
+\[
+\Psi_d(c_0),\,\Psi_d(c_1),\,\dots,\,\Psi_d(c_{d-1}),\,
+\Psi_d(x_\infty)\qquad(x_\infty\ \text{large})
+\]
+has signs $+,-,+,\dots,(-1)^{d-1},(-1)^d$: it alternates through $d$
+strict sign changes. By the intermediate value theorem $\Psi_d$ has at
+least $d$ distinct zeros in $(c_0,\infty)=(0,\infty)$. Since $\Psi_d$
+is even, it has at least $d$ further distinct zeros in $(-\infty,0)$,
+and $\Psi_d(0)=M_0=1\neq0$. That is at least $2d$ distinct complex
+zeros of a polynomial of degree $2d$: there are exactly $2d$, all
+real, all simple.
+\end{proof}
+
+\begin{remark}[$d=1$]
+The degenerate case is instructive: there are no positive critical
+points, the sign sequence is $\Psi_1(0)=1>0$ followed by the tail sign
+$-$, and indeed
+$\Psi_1(w)=1-\tfrac{\e^{\gamma}}{4}w^2$ has the two real simple zeros
+$\pm2\,\e^{-\gamma/2}$. The proof above covers this case verbatim ---
+no step assumed $d\ge2$.
+\end{remark}
+
+\section{The formal proof}\label{sec:lean}
+
+Theorem~\ref{thm:main} (in the realness form stated in
+Section~\ref{sec:intro}) has been formalized in Lean~4 (v4.30.0)
+against mathlib (pinned at commit
+\texttt{c5ea0035}\,/\,tag v4.30.0). The development comprises
+thirteen files, about $5{,}300$ lines:
+
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}l p{0.64\textwidth}@{}}
+\texttt{Defs} & the polynomials $\Psi_d$, $C_d$, the sequences $M_k$, $S_1$; statement of the theorem\\
+\texttt{Structure} & coefficient closed forms, degree, the Kummer ODE in polynomial form\\
+\texttt{Frullani} & Frullani's integral for exponentials\\
+\texttt{Binet} & the integer Binet identity (Lemma~\ref{lem:binet})\\
+\texttt{CPMeasure} & the L\'evy measure $\lambda$ as a \texttt{withDensity} measure; finiteness\\
+\texttt{Moments}, \texttt{MomentsLimit} & moment ratios; the Stirling limit $M_k\to p$\\
+\texttt{MuBridge} & the finite-quadrature interface: residual moments $M_k-p$ from a measure\\
+\texttt{Capstone} & discharge of the quadrature interface by the compound-Poisson pushforward\\
+\texttt{Energy} & Lemma~\ref{lem:energy} (real energy monotonicity, segment domination)\\
+\texttt{Hermite} & real-rootedness, simplicity and interlacing of $\He_n$, by induction\\
+\texttt{CriticalData} & Lemma~\ref{lem:critical} for $C_d$ via the bridge \eqref{eq:bridge}\\
+\texttt{SignCount} & the sign-alternation count, Step~3 above\\
+\end{tabular}
+\end{center}
+
+Two design points deserve mention.
+
+\emph{No randomness in the formal text.} The formal proof does not
+construct a Poisson point process. It constructs the finite measure
+$\lambda$ directly, proves the integer Binet identity as a genuine
+Lebesgue-integral statement, and obtains the residual measure $\mu$ of
+\eqref{eq:decomp} as a pushforward, discharging a finite list of
+moment conditions ($\mu\ge0$, mass $1-p$, even moments $M_k-p$ for
+$k\le d$) --- which is all that Step~1 consumes. The probabilistic
+language of Section~\ref{sec:moments} is, for the formal text, a
+commentary.
+
+\emph{Hermite theory from scratch.} Rather than formalize the
+classical literature on Laguerre zeros, the development proves
+real-rootedness with simplicity and the full interlacing data for the
+probabilists' Hermite polynomials by induction on $n$ via
+$\He_{n+1}=x\,\He_n-\He_n'$: between consecutive simple roots of
+$\He_n$ the derivative term forces a sign change of $\He_{n+1}$, and
+two tail roots are produced by the parity of the leading terms; a
+counting argument then pins exactly $n+1$ simple roots. The identity
+\eqref{eq:bridge} transports this package to $C_d$ by a first-order
+coefficient recurrence, avoiding any appeal to unformalized special
+function theory.
+
+The final check reports:
+\begin{center}
+\texttt{'TheoremM.theorem\_M' depends on axioms:
+[propext, Classical.choice, Quot.sound]}
+\end{center}
+with zero \texttt{sorry}s in the tree (8489 compiled jobs). These
+three axioms are the standard foundation of all of mathlib;
+in particular no numerical computation, floating point or interval
+arithmetic enters the formal proof anywhere --- all constants,
+including $p=\sqrt{2/\e}$ and the inequality \eqref{eq:phalf}, are
+handled exactly.
+
+The formalization was produced jointly by two AI research agents
+(Claude ``Fable'' and GPT) working under the author's direction in a
+mutual-audit protocol (disjoint file ownership, cross line-audits of
+each other's proofs), with the Lean kernel as the final referee. An
+independent re-verification of the compiled proof term with an
+external Lean~4 kernel checker is in progress and will be reported in
+a revision.
+
+\section{Concluding remarks}\label{sec:remarks}
+
+\begin{remark}[sharpness]\label{rem:sharp}
+The budget of Step~1 is sharp at the endpoint $v\to1^-$: numerically,
+for every $d$ tested ($1\le d\le 300$), the worst ratio
+$|\Psi_d(c_m)-pC_d(c_m)|\,/\,p|C_d(c_m)|$ over the critical points
+equals $(1-p)/p=0.16582\ldots$ to all computed digits --- the measure
+$\mu$ concentrates its action at $v$ near $1$, where the domination
+\eqref{eq:domination} costs nothing. The proof therefore has a uniform
+factor-$6$ margin, but no asymptotic slack is hiding anywhere: the
+mechanism is the strict inequality $p>\tfrac12$, used once.
+\end{remark}
+
+\begin{remark}[simplicity vs.\ the formal statement]
+The paper proof gives realness \emph{and simplicity} (Step~3 produces
+$2d$ \emph{distinct} zeros). The formalized statement asserts realness
+of every complex root; distinctness is present in the formal
+development's counting layer but was not exported into the headline
+statement.
+\end{remark}
+
+\begin{remark}[what is not proved]
+Theorem~\ref{thm:main} is a statement about a fixed, explicit
+polynomial family. It neither implies nor is implied by any statement
+about the Riemann $\xi$-function; in the research program where
+$\Psi_d$ arose, the passage from finite-degree hyperbolicity to any
+statement about $\xi$ is a separate, open transport problem, and
+nothing in this paper bears on it. We state this explicitly to
+prevent over-reading.
+\end{remark}
+
+\begin{remark}[a question]
+The moment sequence \eqref{eq:Mk} acts coefficientwise on $C_d$ and
+preserves hyperbolicity for every $d$. Is $(M_k)_{k\ge0}$ a
+P\'olya--Schur multiplier sequence (i.e.\ does it preserve
+hyperbolicity of \emph{all} hyperbolic even polynomials)? The
+compound-Poisson representation proves much less --- it is tied to the
+energy structure of $C_d$ --- and we do not know the answer; a
+negative answer would make Theorem~\ref{thm:main} more interesting,
+not less.
+\end{remark}
+
+\subsection*{Acknowledgments}
+% TODO (Michael): authorship/credit framing is yours to settle.
+The mathematical route and its formal verification were developed
+jointly by two AI research agents, Claude (``Fable'', Anthropic) and
+GPT (OpenAI), working as a coordinated pair under the author's
+direction, with mutual line-audits and the Lean kernel as referee.
+Three external referee passes by a third model (Gemini, Google)
+hardened earlier versions of the manuscript material.
+
+\begin{thebibliography}{9}
+
+\bibitem{szego}
+G.~Szeg\H{o},
+\emph{Orthogonal Polynomials},
+4th ed., Amer. Math. Soc. Colloq. Publ., vol.~23,
+American Mathematical Society, Providence, RI, 1975.
+
+\bibitem{polya-schur}
+G.~P\'olya and J.~Schur,
+\emph{\"Uber zwei Arten von Faktorenfolgen in der Theorie der
+algebraischen Gleichungen},
+J. Reine Angew. Math. \textbf{144} (1914), 89--113.
+
+\bibitem{dlmf}
+NIST Digital Library of Mathematical Functions,
+\url{https://dlmf.nist.gov/},
+Release 1.2.x; F.~W.~J. Olver et al., eds.
+
+\bibitem{ww}
+E.~T. Whittaker and G.~N. Watson,
+\emph{A Course of Modern Analysis},
+4th ed., Cambridge University Press, 1927.
+
+\bibitem{kingman}
+J.~F.~C. Kingman,
+\emph{Poisson Processes},
+Oxford Studies in Probability, vol.~3,
+Oxford University Press, 1993.
+
+\bibitem{lean4}
+L.~de~Moura and S.~Ullrich,
+\emph{The Lean 4 theorem prover and programming language},
+in: Automated Deduction -- CADE 28,
+Lecture Notes in Comput. Sci., vol.~12699, Springer, 2021, 625--635.
+
+\bibitem{mathlib}
+The mathlib Community,
+\emph{The Lean mathematical library},
+in: Proc. 9th ACM SIGPLAN Int. Conf. on Certified Programs and Proofs
+(CPP 2020), ACM, 2020, 367--381.
+
+\end{thebibliography}
+
+\end{document}
